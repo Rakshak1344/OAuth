@@ -11,10 +11,13 @@ require('../passport')
 const { validateBody, schemas } = require('../helpers/routeHelpers')
 const UserController = require('../controllers/users')
 
-// renaming
+// Re-naming Joi validation
 const validateData = validateBody(schemas.authSchema)
+
+// Re-naming passport stratergy
 const passportSignIn = passport.authenticate('local', { session: false })
 const passportJWT = passport.authenticate('jwt', { session: false })
+const googleToken = passport.authenticate('googleToken', { session: false })
 
 //Routes
 
@@ -25,6 +28,14 @@ router.route('/signup')
 //use email and password
 router.route('/signin')
     .post(validateData, passportSignIn, UserController.signIn)
+
+//Google Auth
+router.route('/oauth/google')
+    .post(googleToken, UserController.googleOAuth)
+
+//Facebook Auth
+router.route('/oauth/facebook')
+    .post(passport.authenticate('facebookToken', { session: false }),UserController.facebookOAuth)
 
 //use Authorization Header with Bearer <token>
 router.route('/secret')

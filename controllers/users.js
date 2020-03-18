@@ -21,11 +21,18 @@ module.exports = {
 
         const { email, password } = req.value.body        // const email = req.value.body.email        // const password = req.value.body.password
         //check if there is a user with the same email
-        const foundUser = await User.findOne({ email })
+        const foundUser = await User.findOne({ "local.email": email })
         if (foundUser) {
             return res.status(403).json({ error: "Email is already in use" })
         }
-        const newUser = new User({ email, password })
+        const newUser = new User({
+            method: 'local',
+            local: {
+                email: email,
+                password: password
+            }
+
+        })
         await newUser.save();
         //Respond with token
         const token = signToken(newUser)
@@ -36,17 +43,31 @@ module.exports = {
         //Generate token
         // console.log(req.user)
         const token = signToken(req.user)
-        res.status(200).json({token})
+        res.status(200).json({ token })
         console.log('UserController.signIn')
         console.log('Successful')
 
     },
+    googleOAuth: async (req, res, next) => {
+        console.log("googleOAuth")
+        console.log("req.user", req.user)
+        const token = signToken(req.user)
+        res.status(200).json({ token })
+    },
+
+    facebookOAuth: async (req, res, next) => {
+        console.log("facebookOAuth")
+        console.log('req.user',req.user)
+        const token = signToken(req.user)
+        res.status(200).json({ token })
+    },
+
     secret: async (req, res, next) => {
         console.log('It works')
         console.log('UserController.secret')
         res.json({ secret: "resource" })
-    },
+    }
 
-   
+
 
 }
